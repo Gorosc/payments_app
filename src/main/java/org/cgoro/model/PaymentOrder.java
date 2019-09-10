@@ -1,12 +1,14 @@
 package org.cgoro.model;
 
+import java.math.BigDecimal;
+
 public class PaymentOrder extends Dto{
 
     private String transactionId;
     private String appRefId;
     private String senderAccountId;
     private String recipientAccountId;
-    private String amount;
+    private BigDecimal amount;
     private String receiptToken;
 
     public String getTransactionId() {
@@ -45,11 +47,11 @@ public class PaymentOrder extends Dto{
         return this;
     }
 
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public PaymentOrder setAmount(String amount) {
+    public PaymentOrder setAmount(BigDecimal amount) {
         this.amount = amount;
         return this;
     }

@@ -5,6 +5,8 @@ import org.apache.camel.model.rest.RestBindingMode;
 import org.cgoro.exception.DuplicateTransactionId;
 import org.cgoro.model.PaymentOrder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class RestPaymentRouteBuilder extends RouteBuilder {
@@ -26,8 +28,9 @@ public class RestPaymentRouteBuilder extends RouteBuilder {
         rest("/payment")
                 .post().consumes("application/json").type(PaymentOrder.class).produces("application/json").outType(PaymentOrder.class)
                     .to("direct:validatePaymentOrder")
-                    .to("direct:populateReceiptToken")
-                .get("/health").produces("application/json").type(PaymentOrder.class)
+                    .to("direct:populateReceiptToken");
+
+        rest("/health").get().produces("application/json").type(PaymentOrder.class)
                     .to("direct:health");
 
 
@@ -50,9 +53,9 @@ public class RestPaymentRouteBuilder extends RouteBuilder {
         });
 
         from("direct:health").process(exchange -> {
-            PaymentOrder paymentOrder = new PaymentOrder();
-            paymentOrder.setSuccess(true);
-            exchange.getIn().setBody(paymentOrder);
+            Map<String,String> status = new HashMap<>();
+            status.put("status", "UP");
+            exchange.getIn().setBody(status);
         });
 
     }
