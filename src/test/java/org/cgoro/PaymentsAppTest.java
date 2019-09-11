@@ -86,7 +86,37 @@ public class PaymentsAppTest extends MainApp{
     }
 
     @Test
+    public void submitPaymentRefundRequestUnknownPaymentId() {
+        throw new NotImplementedException();
+    }
+
+    @Test
     public void submitPaymentRefundRequest() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void finalizePayment() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void finalizePaymentInvalidTransactionId() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void finalizePaymentInvalidReceiptToken() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void cancelPayment() {
+        throw new NotImplementedException();
+    }
+
+    @Test
+    public void cancelPaymentIsFinalError() {
         throw new NotImplementedException();
     }
 
