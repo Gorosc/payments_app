@@ -44,7 +44,7 @@ public class DBManager {
                 Class.forName("org.h2.Driver");
                 Connection conn = DriverManager.
                         getConnection("jdbc:h2:tcp://localhost:9092/~/demoapp", "sa", "");
-                System.out.println("Connection Established: "
+                logger.info("Connection Established: "
                         + conn.getMetaData().getDatabaseProductName() + "/" + conn.getCatalog());
             } catch (SQLException e) {
                 logger.error("Cannot create Database", e);

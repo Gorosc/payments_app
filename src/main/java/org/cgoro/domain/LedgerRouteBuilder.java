@@ -15,7 +15,6 @@ public class LedgerRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
 
         from("timer://ledgerProcess?fixedRate=true&period=1s")
-                //.log("processing transactions")
                 .process(exchange -> {
                     TransactionDAO transactionDAO = (TransactionDAO) exchange.getContext().getRegistry().lookupByName("transactionDAO");
 
@@ -26,7 +25,8 @@ public class LedgerRouteBuilder extends RouteBuilder {
 
 
         from("direct:processTransaction")
-                .log("processing ${body.transactionId}")
+                .id("ledger")
+                .log("Processing ${body.transactionId}")
                 .process(exchange -> {
                     Transaction transaction = exchange.getIn().getBody(Transaction.class);
 

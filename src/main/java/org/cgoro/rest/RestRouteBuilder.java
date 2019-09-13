@@ -2,6 +2,8 @@ package org.cgoro.rest;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.cgoro.db.entity.Account;
+import org.cgoro.model.AccountDTO;
 import org.cgoro.model.PaymentOrderDTO;
 import org.cgoro.model.ReceiptDTO;
 
@@ -20,12 +22,14 @@ public class RestRouteBuilder extends RouteBuilder {
         rest("/payment")
                 .post().consumes(APPLICATION_JSON).type(PaymentOrderDTO.class).produces(APPLICATION_JSON).outType(PaymentOrderDTO.class)
                     .to("direct:submitPayment")
-                .get("/finalize").consumes(APPLICATION_JSON).produces(APPLICATION_JSON).outType(ReceiptDTO.class)
-                    .to("direct:finalizePayment");
+                .get("/finalize").produces(APPLICATION_JSON).outType(ReceiptDTO.class)
+                    .to("direct:finalizePayment")
+                .get("/enquire").produces(APPLICATION_JSON).outType(ReceiptDTO.class)
+                    .to("direct:enquirePaymentStatus");
 
         rest("/account")
-                .get().produces(APPLICATION_JSON).to("direct:getAccounts")
-                .get("/{id}").produces(APPLICATION_JSON).to("direct:getAccount");
+                .get().produces(APPLICATION_JSON).outType(AccountDTO.class).to("direct:getAccounts")
+                .get("/{id}").produces(APPLICATION_JSON).outType(AccountDTO.class).to("direct:getAccount");
 
         rest("/health").get().produces(APPLICATION_JSON).type(PaymentOrderDTO.class)
                 .to("direct:health");

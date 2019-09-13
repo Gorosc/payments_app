@@ -30,6 +30,10 @@ public class TransactionDAO extends DAOImpl {
         return em.createNamedQuery("allTransactions", Transaction.class).getResultList();
     }
 
+    public List<Transaction> findByApplicationRefId(String applicationRefId) {
+        return em.createNamedQuery("findByApplicationRefId", Transaction.class).setParameter("applicationRefId", applicationRefId).getResultList();
+    }
+
     public Transaction findByApplicationRefIdAndStatus(String applicationRefId, TransactionStatus succesfull) {
         try {
             return em.createNamedQuery("findByApplicationRefIdAndStatus", Transaction.class).setParameter("applicationRefId", applicationRefId)

@@ -14,6 +14,7 @@ import org.cgoro.rest.RestRouteBuilder;
 public class MainApp {
 
     static DIEngine di;
+    static Main main;
 
     /**
      * A main() so we can easily run these routing rules in our IDE
@@ -25,7 +26,7 @@ public class MainApp {
         di = diEngine;
         diEngine.dbManager().init();
 
-        Main main = new Main();
+        main = new Main();
         main.bind("em", diEngine.dbManager().getEm());
         main.bind("accountDAO", diEngine.accountDAO());
         main.bind("transactionDAO", diEngine.transactionDAO());

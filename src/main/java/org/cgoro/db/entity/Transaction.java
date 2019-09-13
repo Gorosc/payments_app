@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
         @NamedQuery(name = "allTransactions", query = "select x from Transaction x"),
         @NamedQuery(name = "findByTransactionId",query = "select x from Transaction x where x.transactionId = :transactionId"),
         @NamedQuery(name = "findByApplicationRefIdAndStatus",query = "select x from Transaction x where x.applicationRefId = :applicationRefId AND x.status = :status"),
-        @NamedQuery(name = "findByStatus", query = "select x from Transaction x where x.status = :status")
+        @NamedQuery(name = "findByStatus", query = "select x from Transaction x where x.status = :status"),
+        @NamedQuery(name = "findByApplicationRefId", query = "select x from Transaction x where x.applicationRefId = :applicationRefId"),
 })
 public class Transaction {
 

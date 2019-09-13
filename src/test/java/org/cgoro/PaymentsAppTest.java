@@ -5,6 +5,7 @@ import okhttp3.*;
 import org.cgoro.db.entity.LedgerUpdateStatus;
 import org.cgoro.db.entity.Transaction;
 import org.cgoro.db.entity.TransactionStatus;
+import org.cgoro.domain.LedgerRouteBuilder;
 import org.cgoro.model.PaymentOrderDTO;
 import org.cgoro.model.ReceiptDTO;
 import org.junit.BeforeClass;
@@ -108,28 +109,103 @@ public class PaymentsAppTest extends MainApp{
     }
 
     @Test
-    public void submitPaymentInvalidSenderAccountError() {
-        throw new NotImplementedException();
+    public void submitPaymentInvalidSenderAccountError() throws IOException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT5");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Invalid Sender Account Id", response.body().string());
     }
 
     @Test
-    public void submitPaymentInvalidRecipientAccountError() {
-        throw new NotImplementedException();
+    public void submitPaymentInvalidRecipientAccountError() throws IOException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT5");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Invalid Recipient Account Id", response.body().string());
     }
 
     @Test
-    public void submitPaymentInsufficientFundsAccountError() {
-        throw new NotImplementedException();
+    public void submitPaymentInsufficientFundsAccountError() throws IOException {
+
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(100000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Insufficient Funds", response.body().string());
     }
 
     @Test
-    public void submitPaymentNegativePaymentAmountError() {
-        throw new NotImplementedException();
+    public void submitPaymentNegativePaymentAmountError() throws IOException {
+
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(-50000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Invalid payment amount cannot be negative", response.body().string());
     }
 
     @Test
-    public void submitPaymentEnquiry() {
-        throw new NotImplementedException();
+    public void submitPaymentEnquiry() throws IOException {
+
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        String applicationRefId = "APPPAYMENT"+Math.random();
+        paymentOrderDTO.setApplicationRefId(applicationRefId);
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+
+
+        request = new Request.Builder().url("http://localhost:8080/payment/enquire?applicationRefId=" + applicationRefId).get().build();
+        response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        ReceiptDTO receiptDTO = objectMapper.readValue(response.body().string() , ReceiptDTO.class);
+        assertNotNull(receiptDTO);
     }
 
     @Test
@@ -191,13 +267,101 @@ public class PaymentsAppTest extends MainApp{
     }
 
     @Test
-    public void finalizePaymentInvalidTransactionId() {
-        throw new NotImplementedException();
+    public void finalizePaymentInvalidTransactionId() throws IOException, InterruptedException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        String appRefId = "APPPAYMENT"+Math.random();
+        paymentOrderDTO.setApplicationRefId(appRefId);
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        PaymentOrderDTO responsePaymentOrderDTO = objectMapper.readValue(response.body().string(), PaymentOrderDTO.class);
+        String receiptToken = responsePaymentOrderDTO.getReceiptToken();
+        assertNotNull(receiptToken);
+
+        Thread.sleep(2000);
+
+        request = new Request.Builder().url("http://localhost:8080/payment/finalize?transactionId=" + "invalidTransactionId" +
+                "&receiptToken=" + receiptToken).get().build();
+        response = http.newCall(request).execute();
+        assertEquals(404, response.code());
+        assertEquals("Not Found", response.body().string());
     }
 
     @Test
-    public void finalizePaymentInvalidReceiptToken() {
-        throw new NotImplementedException();
+    public void finalizePaymentInvalidReceiptToken() throws IOException, InterruptedException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        String appRefId = "APPPAYMENT"+Math.random();
+        paymentOrderDTO.setApplicationRefId(appRefId);
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        PaymentOrderDTO responsePaymentOrderDTO = objectMapper.readValue(response.body().string(), PaymentOrderDTO.class);
+        String receiptToken = responsePaymentOrderDTO.getReceiptToken();
+        assertNotNull(receiptToken);
+
+        Thread.sleep(2000);
+
+        request = new Request.Builder().url("http://localhost:8080/payment/finalize?transactionId=" + transactionId +
+                "&receiptToken=" + "invalidReceiptToken").get().build();
+        response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Invalid Receipt Token", response.body().string());
+    }
+
+    @Test
+    public void finalizePaymentStatusStillInProgress() throws Exception {
+
+        main.getCamelContext().removeRoute("ledger");
+
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        String appRefId = "APPPAYMENT"+Math.random();
+        paymentOrderDTO.setApplicationRefId(appRefId);
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        PaymentOrderDTO responsePaymentOrderDTO = objectMapper.readValue(response.body().string(), PaymentOrderDTO.class);
+        String receiptToken = responsePaymentOrderDTO.getReceiptToken();
+        assertNotNull(receiptToken);
+
+        request = new Request.Builder().url("http://localhost:8080/payment/finalize?transactionId=" + transactionId +
+                "&receiptToken=" + receiptToken).get().build();
+        response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        ReceiptDTO receiptDTO = objectMapper.readValue(response.body().string() , ReceiptDTO.class);
+        assertEquals(TransactionStatus.INPROGRESS, receiptDTO.getStatus());
+
+        main.addRouteBuilder(new LedgerRouteBuilder());
+
+        Thread.sleep(1000);
+
+        response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        receiptDTO = objectMapper.readValue(response.body().string() , ReceiptDTO.class);
+        assertEquals(TransactionStatus.SUCCESFULL, receiptDTO.getStatus());
     }
 
     @Test
