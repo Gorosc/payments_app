@@ -1,6 +1,6 @@
 package org.cgoro.db.entity;
 
-public enum Status {
+public enum TransactionStatus {
     INPROGRESS,
     SUCCESFULL,
     UNSUCCESFULL

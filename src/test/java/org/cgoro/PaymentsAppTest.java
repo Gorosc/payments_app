@@ -2,7 +2,11 @@ package org.cgoro;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
-import org.cgoro.model.PaymentOrder;
+import org.cgoro.db.entity.LedgerUpdateStatus;
+import org.cgoro.db.entity.Transaction;
+import org.cgoro.db.entity.TransactionStatus;
+import org.cgoro.model.PaymentOrderDTO;
+import org.cgoro.model.ReceiptDTO;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +16,6 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,30 +37,74 @@ public class PaymentsAppTest extends MainApp{
 
    @Test
     public void submitPayment() throws IOException {
-        PaymentOrder paymentOrder = new PaymentOrder();
-        paymentOrder.setTransactionId("TXN"+ LocalDateTime.now().toString());
-        paymentOrder.setAppRefId("APPPAYMENT"+Math.random());
-        paymentOrder.setAmount(BigDecimal.valueOf(5000));
-        paymentOrder.setRecipientAccountId(UUID.randomUUID().toString());
-        paymentOrder.setSenderAccountId(UUID.randomUUID().toString());
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
 
-        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrder), MediaType.get("application/json"));
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
         Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
 
         Response response = http.newCall(request).execute();
         assertEquals(200, response.code());
-        PaymentOrder responsePaymentOrder = objectMapper.readValue(response.body().string(), PaymentOrder.class);
-        assertNotNull(responsePaymentOrder.getReceiptToken());
+        PaymentOrderDTO responsePaymentOrderDTO = objectMapper.readValue(response.body().string(), PaymentOrderDTO.class);
+        assertNotNull(responsePaymentOrderDTO.getReceiptToken());
+
+        Transaction transaction = di.transactionDAO().find(transactionId);
+        assertEquals(paymentOrderDTO.getTransactionId(), transaction.getTransactionId());
+        assertNotNull(transaction.getPaymentOrderCreationDate());
+        assertNotNull(transaction.getStatus());
     }
 
     @Test
-    public void submitPaymentDuplicateTransactionIdError() {
-        throw new NotImplementedException();
+    public void submitPaymentDuplicateTransactionIdError() throws IOException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN1";
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+        http.newCall(request).execute();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Transaction Id already exists", response.body().string());
     }
 
     @Test
-    public void submitPaymentExistingSuccesfullAppRefIdError() {
-        throw new NotImplementedException();
+    public void submitPaymentExistingSuccesfullAppRefIdError() throws IOException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN1";
+        paymentOrderDTO.setTransactionId(transactionId);
+        paymentOrderDTO.setApplicationRefId("APPPAYMENT"+Math.random());
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        //First request
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+        http.newCall(request).execute();
+
+        Transaction transaction = di.transactionDAO().find("TXN1");
+        transaction.setStatus(TransactionStatus.SUCCESFULL);
+        di.transactionDAO().update(transaction);
+
+        paymentOrderDTO.setTransactionId("TXN2");
+
+        //Second request
+        body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+        Response response = http.newCall(request).execute();
+        assertEquals(400, response.code());
+        assertEquals("Double Payment not allowed", response.body().string());
     }
 
     @Test
@@ -96,8 +143,51 @@ public class PaymentsAppTest extends MainApp{
     }
 
     @Test
-    public void finalizePayment() {
-        throw new NotImplementedException();
+    public void finalizePayment() throws IOException, InterruptedException {
+        PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
+        String transactionId = "TXN"+ LocalDateTime.now().toString();
+        paymentOrderDTO.setTransactionId(transactionId);
+        String appRefId = "APPPAYMENT"+Math.random();
+        paymentOrderDTO.setApplicationRefId(appRefId);
+        paymentOrderDTO.setAmount(BigDecimal.valueOf(5000));
+        paymentOrderDTO.setRecipientAccountId("ACCOUNT2");
+        paymentOrderDTO.setSenderAccountId("ACCOUNT1");
+
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(paymentOrderDTO), MediaType.get("application/json"));
+        Request request = new Request.Builder().url("http://localhost:8080/payment").post(body).build();
+
+        Response response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        PaymentOrderDTO responsePaymentOrderDTO = objectMapper.readValue(response.body().string(), PaymentOrderDTO.class);
+        String receiptToken = responsePaymentOrderDTO.getReceiptToken();
+        assertNotNull(receiptToken);
+
+        Thread.sleep(2000);
+
+        request = new Request.Builder().url("http://localhost:8080/payment/finalize?transactionId=" + transactionId +
+                                            "&receiptToken=" + receiptToken).get().build();
+        response = http.newCall(request).execute();
+        assertEquals(200, response.code());
+        ReceiptDTO receiptDTO = objectMapper.readValue(response.body().string() , ReceiptDTO.class);
+        assertEquals(transactionId, receiptDTO.getTransactionId());
+        assertEquals(appRefId, receiptDTO.getApplicationRefId());
+        assertEquals(BigDecimal.valueOf(5000), receiptDTO.getAmount());
+
+        Transaction transaction = di.transactionDAO().findByApplicationRefIdAndStatus(appRefId, TransactionStatus.SUCCESFULL);
+        assertNotNull(transaction);
+        assertNotNull(transaction.getPaymentId());
+        assertEquals(transaction.getPaymentId(), receiptDTO.getPaymentId());
+
+        BigDecimal balance2 = di.ledgerDAO().getAll("ACCOUNT2").stream().map( ledgerUpdate -> {
+            assertEquals(LedgerUpdateStatus.FINAL, ledgerUpdate.getStatus());
+            return ledgerUpdate.getBalanceUpdate();
+        }).reduce(BigDecimal.ZERO, BigDecimal::add);
+        assertEquals(BigDecimal.valueOf(55000), balance2);
+        BigDecimal balance1 = di.ledgerDAO().getAll("ACCOUNT1").stream().map( ledgerUpdate -> {
+            assertEquals(LedgerUpdateStatus.FINAL, ledgerUpdate.getStatus());
+            return ledgerUpdate.getBalanceUpdate();
+        }).reduce(BigDecimal.ZERO, BigDecimal::add);
+        assertEquals(BigDecimal.valueOf(45000), balance1);
     }
 
     @Test

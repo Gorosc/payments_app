@@ -14,7 +14,11 @@ public class TestProcess {
 
     public synchronized void startIfNotRunning() throws Exception {
         // check if it's not running and if not start
-        instance.start();
+        try {
+            instance.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void stop() throws Exception {
@@ -38,6 +42,6 @@ public class TestProcess {
         });
 
         thread.start();
-        Thread.sleep(3000);
+        Thread.sleep(5000);
     }
 }

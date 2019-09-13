@@ -11,14 +11,17 @@ import javax.persistence.Persistence;
 @Module
 public class ConfigModule {
 
+    private EntityManagerFactory emf;
     private EntityManager em;
 
+
     public ConfigModule() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("demoPersistenceUnit");
+        this.emf = Persistence.createEntityManagerFactory("paymentsAppPU");
         this.em =  emf.createEntityManager();
     }
 
     @Provides @Singleton EntityManager provideEntityManager() {
         return this.em;
     }
+    @Provides @Singleton EntityManagerFactory provideEntityManagerFactory() {return this.emf;}
 }

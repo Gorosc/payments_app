@@ -1,18 +1,21 @@
 package org.cgoro.db.entity;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "allAccounts", query = "select x from Account x"),
+        @NamedQuery(name = "findByAccountId", query = "select x from Account x where x.accountId = :accountId")
+})
 public class Account {
 
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private String id;
+    private Long id;
 
     @Column(name = "account_id", unique = true)
     private String accountId;
@@ -20,13 +23,13 @@ public class Account {
     @Column(name = "name_en")
     private String nameEn;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Transaction> outgoingTransactions;
 
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Transaction> incomingTransactions;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LedgerUpdate> ledgerUpdates;
 
     @Column(name = "account_create_dt")
@@ -70,7 +73,7 @@ public class Account {
     }
 
     public List<LedgerUpdate> getLedgerUpdates() {
-        return ledgerUpdates;
+        return ledgerUpdates!=null?ledgerUpdates:new ArrayList<>();
     }
 
     public Account setLedgerUpdates(List<LedgerUpdate> ledgerUpdates) {

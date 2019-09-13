@@ -2,10 +2,10 @@ package org.cgoro.model;
 
 import java.math.BigDecimal;
 
-public class PaymentOrder extends Dto{
+public class PaymentOrderDTO{
 
     private String transactionId;
-    private String appRefId;
+    private String applicationRefId;
     private String senderAccountId;
     private String recipientAccountId;
     private BigDecimal amount;
@@ -15,17 +15,17 @@ public class PaymentOrder extends Dto{
         return transactionId;
     }
 
-    public PaymentOrder setTransactionId(String transactionId) {
+    public PaymentOrderDTO setTransactionId(String transactionId) {
         this.transactionId = transactionId;
         return this;
     }
 
-    public String getAppRefId() {
-        return appRefId;
+    public String getApplicationRefId() {
+        return applicationRefId;
     }
 
-    public PaymentOrder setAppRefId(String appRefId) {
-        this.appRefId = appRefId;
+    public PaymentOrderDTO setApplicationRefId(String applicationRefId) {
+        this.applicationRefId = applicationRefId;
         return this;
     }
 
@@ -33,7 +33,7 @@ public class PaymentOrder extends Dto{
         return senderAccountId;
     }
 
-    public PaymentOrder setSenderAccountId(String senderAccountId) {
+    public PaymentOrderDTO setSenderAccountId(String senderAccountId) {
         this.senderAccountId = senderAccountId;
         return this;
     }
@@ -42,7 +42,7 @@ public class PaymentOrder extends Dto{
         return recipientAccountId;
     }
 
-    public PaymentOrder setRecipientAccountId(String recipientAccountId) {
+    public PaymentOrderDTO setRecipientAccountId(String recipientAccountId) {
         this.recipientAccountId = recipientAccountId;
         return this;
     }
@@ -51,7 +51,7 @@ public class PaymentOrder extends Dto{
         return amount;
     }
 
-    public PaymentOrder setAmount(BigDecimal amount) {
+    public PaymentOrderDTO setAmount(BigDecimal amount) {
         this.amount = amount;
         return this;
     }
@@ -60,7 +60,7 @@ public class PaymentOrder extends Dto{
         return receiptToken;
     }
 
-    public PaymentOrder setReceiptToken(String receiptToken) {
+    public PaymentOrderDTO setReceiptToken(String receiptToken) {
         this.receiptToken = receiptToken;
         return this;
     }

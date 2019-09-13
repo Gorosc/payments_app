@@ -1,4 +1,4 @@
-package org.cgoro;
+package org.cgoro.domain;
 
 import org.apache.camel.builder.RouteBuilder;
 

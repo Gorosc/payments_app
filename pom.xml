@@ -32,6 +32,8 @@
   <dependencies>
 
     <dependency>
+
+      <!--Camel-->
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
     </dependency>
@@ -39,17 +41,21 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-main</artifactId>
     </dependency>
-
     <!-- Camel Rest -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-undertow</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jackson</artifactId>
     </dependency>
+    <!--
+      This component has dependency on Spring no jpa endpoints in this app :(
+      <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jpa</artifactId>
+    </dependency>-->
 
     <!-- logging -->
     <dependency>
@@ -70,17 +76,28 @@
 
     <!-- JPA -->
     <!-- https://mvnrepository.com/artifact/org.eclipse.persistence/javax.persistence -->
+    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>5.4.4.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-c3p0</artifactId>
+      <version>5.4.4.Final</version>
+    </dependency>
+
+    <!--<dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>javax.persistence</artifactId>
       <version>2.2.1</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.eclipse.persistence/eclipselink -->
     <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>eclipselink</artifactId>
       <version>2.7.4</version>
-    </dependency>
+    </dependency>-->
 
     <!-- H2 -->
     <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
@@ -90,15 +107,13 @@
       <version>1.4.199</version>
     </dependency>
 
-    <!-- LOMBOK -->
-    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <!-- Utils -->
+    <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.8</version>
-      <scope>provided</scope>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>1.3.0.Final</version>
     </dependency>
-
     <!-- DAGGER DI -->
     <dependency>
       <groupId>com.google.dagger</groupId>
@@ -139,6 +154,11 @@
                         <groupId>com.google.dagger</groupId>
                         <artifactId>dagger-compiler</artifactId>
                         <version>2.24</version>
+                    </path>
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>1.3.0.Final</version>
                     </path>
           </annotationProcessorPaths>
         </configuration>
