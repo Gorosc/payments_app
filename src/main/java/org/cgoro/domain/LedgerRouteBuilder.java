@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.cgoro.db.dao.LedgerDAO;
 import org.cgoro.db.dao.TransactionDAO;
 import org.cgoro.db.entity.*;
+import org.cgoro.exception.InSufficientFundsException;
 import org.cgoro.exception.LedgerConcurrentException;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public class LedgerRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
 
         onException(LedgerConcurrentException.class).handled(true).log(LoggingLevel.WARN, "Ledger is currently processing");
-
+        onException(InSufficientFundsException.class).handled(true).log(LoggingLevel.WARN, "Insufficient funds transaction with id ${body.transactionId}");
 
         from("timer://ledgerProcess?fixedRate=true&period=1s")
                 .process(exchange -> {
