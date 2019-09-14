@@ -4,11 +4,11 @@ import org.apache.camel.builder.RouteBuilder;
 import org.cgoro.db.dao.LedgerDAO;
 import org.cgoro.db.dao.TransactionDAO;
 import org.cgoro.db.entity.*;
-import org.cgoro.exception.InSufficientFundsException;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class LedgerRouteBuilder extends RouteBuilder {
     @Override
@@ -18,7 +18,8 @@ public class LedgerRouteBuilder extends RouteBuilder {
                 .process(exchange -> {
                     TransactionDAO transactionDAO = (TransactionDAO) exchange.getContext().getRegistry().lookupByName("transactionDAO");
 
-                    List<Transaction> transactionList = transactionDAO.findByStatus(TransactionStatus.INPROGRESS);
+                    List<Transaction> transactionList = transactionDAO.findByStatus(TransactionStatus.INPROGRESS).stream().peek(transaction -> transaction.setStatus(TransactionStatus.PROCESSING)).collect(Collectors.toList());
+                    transactionDAO.updateAll(transactionList);
                     exchange.getIn().setBody(transactionList);
                 })
                 .split(body()).streaming().to("direct:processTransaction");

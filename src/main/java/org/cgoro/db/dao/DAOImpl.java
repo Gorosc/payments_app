@@ -2,6 +2,7 @@ package org.cgoro.db.dao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import java.util.List;
 
 public abstract class DAOImpl<T> implements DAO<T> {
 
@@ -37,6 +38,12 @@ public abstract class DAOImpl<T> implements DAO<T> {
     public void update(Object entity) {
         em.getTransaction().begin();
         em.merge(entity);
+        em.getTransaction().commit();
+    }
+
+    public void updateAll(List<Object> entityList) {
+        em.getTransaction().begin();
+        entityList.forEach(object -> em.merge(object));
         em.getTransaction().commit();
     }
 }
