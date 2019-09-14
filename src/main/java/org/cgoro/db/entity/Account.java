@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity to persist user accounts
+ */
 @Entity
 @NamedQueries({
         @NamedQuery(name = "allAccounts", query = "select x from Account x"),

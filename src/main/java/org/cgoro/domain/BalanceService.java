@@ -10,27 +10,34 @@ import org.cgoro.exception.InSufficientFundsException;
 
 import java.math.BigDecimal;
 
+/**
+ * Balance related methods
+ */
 public class BalanceService {
 
-    LedgerDAO ledgerDAO;
-    TransactionDAO transactionDAO;
+    private LedgerDAO ledgerDAO;
+    private TransactionDAO transactionDAO;
 
     public BalanceService(LedgerDAO ledgerDAO, TransactionDAO transactionDAO) {
         this.ledgerDAO = ledgerDAO;
         this.transactionDAO = transactionDAO;
     }
 
-    public void checkSenderBalance(Transaction transaction) throws InSufficientFundsException {
+    void checkSenderBalance(Transaction transaction) throws InSufficientFundsException {
 
         Account sender = transaction.getSender();
         BigDecimal amount = transaction.getAmount();
 
-        BigDecimal balance =  ledgerDAO.getAll(sender.getAccountId()).stream().map(LedgerUpdate::getBalanceUpdate).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal balance = getAccountBalance(sender);
         if (0 < amount.compareTo(balance)) {
             transaction.setStatus(TransactionStatus.UNSUCCESFULL);
             transaction.setReason("Insufficient Funds");
             transactionDAO.update(transaction);
             throw new InSufficientFundsException();
         }
+    }
+
+    BigDecimal getAccountBalance(Account account) {
+        return ledgerDAO.getAllBalanceSignificant(account.getAccountId()).stream().map(LedgerUpdate::getBalanceUpdate).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

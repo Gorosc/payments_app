@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Camel Application
+ * The application status is first initialized DB - Context - Routes and then started waiting connections until stopped
+ * externally.
  */
 public class MainApp {
 
@@ -19,9 +21,6 @@ public class MainApp {
     static Main main;
     static Logger logger = LoggerFactory.getLogger(MainApp.class);
 
-    /**
-     * A main() so we can easily run these routing rules in our IDE
-     */
     public static void main(String... args) throws Exception {
         DBManager.start();
 

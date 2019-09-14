@@ -9,6 +9,9 @@ public enum  LedgerUpdateStatus {
     CANCELLED,
     REFUNDED;
 
+    /**
+     * @return Balance Statuses that count towards an account's balance
+     */
     public static List<LedgerUpdateStatus> getBalanceSignificantStatuses() {
         return Arrays.asList(PENDING, FINAL);
     }

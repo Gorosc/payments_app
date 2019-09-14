@@ -16,6 +16,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+/**
+ * Class responsible for the connection with the Database. In our case the H2 in memory db.
+ */
 public class DBManager {
 
     private static Logger logger = LoggerFactory.getLogger(DBManager.class);

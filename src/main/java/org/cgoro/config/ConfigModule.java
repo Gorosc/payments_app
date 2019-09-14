@@ -8,6 +8,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+/**
+ * Config Class to create the necessary beans
+ */
 @Module
 public class ConfigModule {
 

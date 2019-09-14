@@ -9,6 +9,9 @@ import org.cgoro.db.dao.TransactionDAO;
 
 import javax.inject.Singleton;
 
+/**
+ * Class tha consists the context of application creating instances of DI objects
+ */
 @Singleton
 @Component(modules = ConfigModule.class)
 public interface DIEngine {

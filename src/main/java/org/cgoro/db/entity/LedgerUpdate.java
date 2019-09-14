@@ -3,6 +3,11 @@ package org.cgoro.db.entity;
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+/**
+ * Entity that implements the ledger. The global truth about balances.
+ * Each ledger update is map to an account and to a transaction and adds or subtracts an amount
+ * to the account
+ */
 @Entity(name = "ledger")
 @NamedQueries({
         @NamedQuery(name = "getAccountAll", query = "select x from ledger x where x.account.accountId= :accountId AND x.status IN (:statuses)"),

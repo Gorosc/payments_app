@@ -254,12 +254,12 @@ public class PaymentsAppTest extends MainApp{
         assertNotNull(transaction.getPaymentId());
         assertEquals(transaction.getPaymentId(), receiptDTO.getPaymentId());
 
-        BigDecimal balance2 = di.ledgerDAO().getAll("ACCOUNT2").stream().map( ledgerUpdate -> {
+        BigDecimal balance2 = di.ledgerDAO().getAllBalanceSignificant("ACCOUNT2").stream().map(ledgerUpdate -> {
             assertEquals(LedgerUpdateStatus.FINAL, ledgerUpdate.getStatus());
             return ledgerUpdate.getBalanceUpdate();
         }).reduce(BigDecimal.ZERO, BigDecimal::add);
         assertEquals(BigDecimal.valueOf(55000), balance2);
-        BigDecimal balance1 = di.ledgerDAO().getAll("ACCOUNT1").stream().map( ledgerUpdate -> {
+        BigDecimal balance1 = di.ledgerDAO().getAllBalanceSignificant("ACCOUNT1").stream().map(ledgerUpdate -> {
             assertEquals(LedgerUpdateStatus.FINAL, ledgerUpdate.getStatus());
             return ledgerUpdate.getBalanceUpdate();
         }).reduce(BigDecimal.ZERO, BigDecimal::add);

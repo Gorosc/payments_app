@@ -2,6 +2,10 @@ package org.cgoro.db.entity;
 
 import javax.persistence.*;
 
+/**
+ * Entity to store the receipts for the payments
+ * TODO: More business information could be stored in the receipt
+ */
 @Entity
 @NamedQueries({
         @NamedQuery(name = "allReceipts", query = "select x from Receipt x"),

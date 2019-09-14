@@ -2,6 +2,9 @@ package org.cgoro.db.dao;
 
 import java.util.List;
 
+/**
+ * @param <T> DAO Interface
+ */
 public interface DAO<T> {
     T find(String id);
     T find(Long id);

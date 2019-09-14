@@ -4,6 +4,12 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Entity that implements a a transaction initiated by a payment order. When successful a
+ * transaction will lead in a balance update. When not it is a lof of the attempt and the failure.
+ * The transaction also holds  more information required to track and investigate payments like
+ * the payment order and receipt generation times
+ */
 @Entity
 @NamedQueries({
         @NamedQuery(name = "allTransactions", query = "select x from Transaction x"),

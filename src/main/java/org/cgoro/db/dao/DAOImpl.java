@@ -4,6 +4,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import java.util.List;
 
+/**
+ * @param <T> Dao common implementations
+ */
 public abstract class DAOImpl<T> implements DAO<T> {
 
     EntityManager em;

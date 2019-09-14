@@ -40,7 +40,7 @@ public class LedgerDAO extends DAOImpl {
         em.getTransaction().commit();
     }
 
-    public List<LedgerUpdate> getAll(String accountId) {
+    public List<LedgerUpdate> getAllBalanceSignificant(String accountId) {
         return em.createNamedQuery("getAccountAll", LedgerUpdate.class).setParameter("accountId", accountId)
                 .setParameter("statuses", LedgerUpdateStatus.getBalanceSignificantStatuses())
                 .getResultList();
