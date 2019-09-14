@@ -328,6 +328,7 @@ public class PaymentsAppTest extends MainApp{
     public void finalizePaymentStatusStillInProgress() throws Exception {
 
         main.getCamelContext().removeRoute("ledger");
+        main.getCamelContext().removeRoute("processTransaction");
 
         PaymentOrderDTO paymentOrderDTO = new PaymentOrderDTO();
         String transactionId = "TXN"+ LocalDateTime.now().toString();

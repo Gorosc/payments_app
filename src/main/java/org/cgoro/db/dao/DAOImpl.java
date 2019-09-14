@@ -46,7 +46,9 @@ public abstract class DAOImpl<T> implements DAO<T> {
 
     public void updateAll(List<Object> entityList) {
         em.getTransaction().begin();
-        entityList.forEach(object -> em.merge(object));
+        for (Object o : entityList) {
+            em.merge(o);
+        }
         em.getTransaction().commit();
     }
 }

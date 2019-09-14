@@ -28,6 +28,7 @@ public class LedgerRouteBuilder extends RouteBuilder {
         onException(InSufficientFundsException.class).handled(true).log(LoggingLevel.WARN, "Insufficient funds transaction with id ${body.transactionId}");
 
         from("timer://ledgerProcess?fixedRate=true&period=1s")
+                .id("ledger")
                 .process(exchange -> {
                     //Acquire the lock otherwise throw an exception and exit
                     if (!processing.tryAcquire()) {
@@ -46,7 +47,7 @@ public class LedgerRouteBuilder extends RouteBuilder {
 
 
         from("direct:processTransaction")
-                .id("ledger")
+                .id("processTransaction")
                 .log("Processing ${body.transactionId}")
                 .process(exchange -> {
                     Transaction transaction = exchange.getIn().getBody(Transaction.class);
