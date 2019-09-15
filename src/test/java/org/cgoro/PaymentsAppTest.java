@@ -10,7 +10,11 @@ import org.cgoro.model.PaymentOrderDTO;
 import org.cgoro.model.ReceiptDTO;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -26,6 +30,18 @@ public class PaymentsAppTest extends MainApp{
 
     private static OkHttpClient http = new OkHttpClient();
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        protected void starting(Description description) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Cannot wait after test" + e.getMessage());
+            }
+            System.out.println("Starting test: " + description.getMethodName());
+        }
+    };
 
     @Test
     public void testHealth() throws IOException {
@@ -378,11 +394,13 @@ public class PaymentsAppTest extends MainApp{
     @BeforeClass
     public static void startProcess() throws Exception {
         TestProcess.getInstance().startIfNotRunning();
-    }
-
-    @AfterClass
-    public static void stop() throws InterruptedException {
-        Thread.sleep(3000);
+        while (true) {
+            Thread.sleep(1000);
+            if (main!=null && main.getCamelContext() !=null && main.getCamelContext().isStarted()) {
+                System.out.println("System initialized. Starting Tests");
+                break;
+            }
+        }
     }
 
 }

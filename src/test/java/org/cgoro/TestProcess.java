@@ -42,6 +42,5 @@ public class TestProcess {
         });
 
         thread.start();
-        Thread.sleep(5000);
     }
 }
